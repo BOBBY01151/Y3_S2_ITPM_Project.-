@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import SuperAdminLogin from './pages/SuperAdminLogin';
 import Dashboard from './pages/Dashboard';
+import Profile from './pages/Profile';
 import './i18n/i18n';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
                     <Route path="/student" element={<Layout />} >
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="events" element={<div className="p-6">Student Events List coming soon...</div>} />
+                        <Route path="settings" element={<Profile />} />
                     </Route>
 
                     <Route path="/lecturer" element={<Layout />} >

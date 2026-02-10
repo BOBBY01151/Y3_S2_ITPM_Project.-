@@ -25,6 +25,7 @@ app.use('/api/materials', require('./routes/materials'));
 app.use('/api/councils', require('./routes/councils'));
 app.use('/api/communities', require('./routes/communities'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/profile', require('./routes/profile'));
 
 app.get('/', (req, res) => {
     res.send(req.t('welcome'));

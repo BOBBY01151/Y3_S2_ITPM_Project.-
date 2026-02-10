@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { getPendingUsers, updateUserStatus } = require('../controllers/userController');
+const { getPendingUsers, updateUserStatus, updateAccountDetails, changePassword } = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/auth');
 
-// All routes here are protected and restricted to superadmin
+// Routes for authenticated users (any role)
+router.put('/me', protect, updateAccountDetails);
+router.put('/me/password', protect, changePassword);
+
+// Routes restricted to superadmin
 router.use(protect);
 router.use(authorize('superadmin'));
 

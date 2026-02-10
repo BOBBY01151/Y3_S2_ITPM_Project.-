@@ -81,7 +81,7 @@ export function Sidebar() {
                     isMobileView ? "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-xl min-w-[60px]" : (
                         isExpanded
                             ? "w-full px-4 py-3 justify-start rounded-xl hover:bg-sidebar-accent/50"
-                            : "w-12 h-12 justify-center mx-auto rounded-full hover:bg-sidebar-accent/50"
+                            : "w-12 h-12 justify-center mx-auto rounded-full hover:bg-sidebar-accent/50 pl-3"
                     ),
                     isActive
                         ? "bg-gradient-to-br from-sidebar-primary to-sidebar-primary/80 shadow-lg text-white"
