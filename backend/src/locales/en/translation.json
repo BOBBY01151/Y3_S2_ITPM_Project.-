@@ -1,0 +1,8 @@
+{
+    "welcome": "Welcome to CampusConnect",
+    "auth": {
+        "login_success": "Login successful",
+        "invalid_credentials": "Invalid credentials",
+        "unauthorized": "Unauthorized access"
+    }
+}

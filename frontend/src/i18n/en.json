@@ -1,0 +1,21 @@
+{
+    "common": {
+        "welcome": "Welcome to CampusConnect",
+        "login": "Login",
+        "register": "Register",
+        "home": "Home",
+        "logout": "Logout",
+        "language": "Language"
+    },
+    "roles": {
+        "student": "Student",
+        "lecturer": "Lecturer",
+        "council": "Council",
+        "community": "Community",
+        "admin": "Admin"
+    },
+    "home": {
+        "title": "Centralized Digital Platform for Our University",
+        "subtitle": "Access study materials, manage council activities, and connect with faculty communities."
+    }
+}

@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-size: 14px;
+  --background: #f5f7fa;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #001f5c;
+  --primary-foreground: #ffffff;
+  --secondary: #ff6600;
+  --secondary-foreground: #ffffff;
+  --muted: #f1f5f9;
+  --muted-foreground: #6b7280;
+  --accent: #fff5ed;
+  --accent-foreground: #ff6600;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: transparent;
+  --input-background: #ffffff;
+  --switch-background: #e5e7eb;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #001f5c;
+  --chart-1: #001f5c;
+  --chart-2: #ff6600;
+  --chart-3: #3b82f6;
+  --chart-4: #ef4444;
+  --chart-5: #8b5cf6;
+  --radius: 0.625rem;
+  --sidebar: #001f5c;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ff6600;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #002a7a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #003399;
+  --sidebar-ring: #ff6600;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  color: var(--foreground);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom gradient utilities for EMS theme */
+.gradient-sidebar {
+  background: linear-gradient(135deg, var(--sidebar) 0%, var(--sidebar-accent) 100%);
+}
+
+.gradient-sidebar-reverse {
+  background: linear-gradient(135deg, var(--sidebar-accent) 0%, var(--sidebar) 100%);
+}
+
+.gradient-card {
+  background: linear-gradient(135deg, var(--sidebar) 0%, var(--sidebar-accent) 50%, var(--sidebar) 100%);
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, var(--sidebar-primary) 0%, rgba(123, 220, 147, 0.8) 100%);
+}
+
+.gradient-glow {
+  box-shadow: 0 0 20px rgba(123, 220, 147, 0.3), 0 0 40px rgba(123, 220, 147, 0.1);
+}
+
+/* Sidebar animations */
+@keyframes activeIndicator {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+.active-indicator {
+  animation: activeIndicator 2s ease-in-out infinite;
+}
+
+/* Smooth expand animation */
+.sidebar-expand {
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced gradient borders */
+.gradient-border {
+  position: relative;
+  background: linear-gradient(135deg, var(--sidebar-primary), var(--sidebar-accent));
+  border-radius: 1.5rem;
+  padding: 1px;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--sidebar-primary), transparent, var(--sidebar-primary));
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
