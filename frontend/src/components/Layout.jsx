@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Sidebar } from "./Sidebar";
 import Dashboard from "../pages/Dashboard";
+import Registrations from "../pages/Registrations";
 // import Analytics from "../pages/Analytics"; // Can be added later if needed
 
 const Configuration = () => (
@@ -45,6 +46,8 @@ export function Layout() {
         switch (currentPage) {
             case "dashboard":
                 return <Dashboard />;
+            case "registrations":
+                return <Registrations />;
             case "analytics":
                 return <AnalyticsPlaceholder />;
             case "events":
@@ -59,14 +62,14 @@ export function Layout() {
     };
 
     return (
-        <div className="flex min-h-screen bg-background text-foreground">
+        <div className="flex h-screen bg-background text-foreground overflow-hidden">
             {/* Desktop Sidebar */}
             <div className="hidden md:block flex-shrink-0">
                 <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-auto pb-20 md:pb-0">
+            <main className="flex-1 overflow-y-auto pb-20 md:pb-0 h-full">
                 {renderContent()}
             </main>
 

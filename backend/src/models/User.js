@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['student', 'lecturer', 'council', 'community', 'admin'],
+        enum: ['student', 'lecturer', 'council', 'community', 'admin', 'superadmin'],
         default: 'student',
     },
     department: String,
@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['en', 'ta'],
         default: 'en',
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'active', 'rejected'],
+        default: 'pending',
     },
 }, { timestamps: true });
 

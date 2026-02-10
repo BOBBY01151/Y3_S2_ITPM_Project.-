@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import Login from './pages/Login';
 import './i18n/i18n';
 
 function App() {
@@ -8,10 +9,8 @@ function App() {
         <Router>
             <div className="min-h-screen bg-background">
                 <Routes>
+                    <Route path="/login" element={<Login />} />
                     <Route path="/" element={<Layout />} />
-                    {/* Add more routes here, for example:
-          <Route path="/login" element={<Login />} />
-          */}
                 </Routes>
             </div>
         </Router>

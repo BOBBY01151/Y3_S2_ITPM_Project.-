@@ -7,11 +7,15 @@ import {
     FileText,
     User,
     Calendar,
-    X
+    X,
+    UserPlus
 } from "lucide-react";
+import { useSelector } from "react-redux";
 import sliitLogo from "../assets/39bee516b4e52b07096c8df6493b386743d2a70d.png";
 
 export function Sidebar({ currentPage, onPageChange }) {
+    const { user } = useSelector((state) => state.auth);
+    const isSuperAdmin = user?.role === "superadmin";
     const [isExpanded, setIsExpanded] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
@@ -43,6 +47,12 @@ export function Sidebar({ currentPage, onPageChange }) {
             icon: LayoutDashboard,
             description: "Overview & monitoring"
         },
+        ...(isSuperAdmin ? [{
+            id: "registrations",
+            name: "Registrations",
+            icon: UserPlus,
+            description: "Review requests"
+        }] : []),
         {
             id: "analytics",
             name: "Analytics",
@@ -92,14 +102,14 @@ export function Sidebar({ currentPage, onPageChange }) {
                                 <Icon className={cn(
                                     "w-5 h-5 transition-colors",
                                     isActive
-                                        ? "text-sidebar-primary-foreground"
-                                        : "text-sidebar-foreground/70"
+                                        ? "text-white"
+                                        : "text-white/60"
                                 )} />
                                 <span className={cn(
                                     "text-[10px] font-medium transition-colors",
                                     isActive
-                                        ? "text-sidebar-primary-foreground"
-                                        : "text-sidebar-foreground/70"
+                                        ? "text-white"
+                                        : "text-white/60"
                                 )}>
                                     {item.name}
                                 </span>
@@ -138,10 +148,10 @@ export function Sidebar({ currentPage, onPageChange }) {
                     </div>
                     {isExpanded && (
                         <div className="mt-3 text-center">
-                            <h2 className="text-sidebar-foreground font-semibold text-base whitespace-nowrap">
+                            <h2 className="text-white font-semibold text-base whitespace-nowrap">
                                 SLIIT EMS
                             </h2>
-                            <p className="text-sidebar-foreground/70 text-xs whitespace-nowrap mt-1">
+                            <p className="text-white/70 text-xs whitespace-nowrap mt-1">
                                 Event Management System
                             </p>
                         </div>
@@ -174,8 +184,8 @@ export function Sidebar({ currentPage, onPageChange }) {
                                             "transition-colors duration-300 flex-shrink-0",
                                             "w-5 h-5",
                                             isActive
-                                                ? "text-sidebar-primary-foreground"
-                                                : "text-sidebar-accent-foreground group-hover:text-sidebar-primary-foreground"
+                                                ? "text-white"
+                                                : "text-white/70 group-hover:text-white"
                                         )} />
 
                                         {isExpanded && (
@@ -183,13 +193,13 @@ export function Sidebar({ currentPage, onPageChange }) {
                                                 <div className={cn(
                                                     "font-medium text-sm whitespace-nowrap transition-colors duration-300",
                                                     isActive
-                                                        ? "text-sidebar-primary-foreground"
-                                                        : "text-sidebar-accent-foreground group-hover:text-sidebar-primary-foreground"
+                                                        ? "text-white"
+                                                        : "text-white/70 group-hover:text-white"
                                                 )}>
                                                     {item.name}
                                                 </div>
                                                 {isActive && (
-                                                    <div className="text-xs text-sidebar-primary-foreground/70 mt-0.5 whitespace-nowrap">
+                                                    <div className="text-xs text-white/80 mt-0.5 whitespace-nowrap">
                                                         {item.description}
                                                     </div>
                                                 )}
@@ -248,10 +258,10 @@ export function Sidebar({ currentPage, onPageChange }) {
                         {/* Profile info for expanded state */}
                         {isExpanded && (
                             <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 text-center">
-                                <div className="text-sidebar-foreground font-medium text-sm whitespace-nowrap">
+                                <div className="text-white font-medium text-sm whitespace-nowrap">
                                     Admin User
                                 </div>
-                                <div className="text-sidebar-foreground/70 text-xs whitespace-nowrap">
+                                <div className="text-white/70 text-xs whitespace-nowrap">
                                     System Administrator
                                 </div>
                             </div>

@@ -14,12 +14,16 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        // If it's a superadmin, make them active by default (for development/bootstrap)
+        const status = role === 'superadmin' ? 'active' : 'pending';
+
         user = new User({
             name,
             email,
             password,
             role,
-            department
+            department,
+            status
         });
 
         await user.save();
@@ -27,7 +31,10 @@ exports.register = async (req, res) => {
         const payload = { id: user.id };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ token });
+        res.json({
+            token,
+            message: status === 'pending' ? 'Registration successful. Waiting for admin approval.' : 'Registration successful.'
+        });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
@@ -47,6 +54,15 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: req.t('auth.invalid_credentials') });
         }
 
+        // Check user status
+        if (user.status === 'pending') {
+            return res.status(401).json({ message: 'Your account is pending approval by an admin.' });
+        }
+
+        if (user.status === 'rejected') {
+            return res.status(401).json({ message: 'Your registration request has been rejected.' });
+        }
+
         const isMatch = await user.comparePassword(password);
 
         if (!isMatch) {
@@ -62,7 +78,8 @@ exports.login = async (req, res) => {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                status: user.status
             }
         });
     } catch (err) {
