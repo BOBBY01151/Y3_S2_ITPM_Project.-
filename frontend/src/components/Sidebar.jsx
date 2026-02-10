@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useMemo } from "react";
 import { cn } from "../lib/utils";
 import {
     LayoutDashboard,
@@ -70,14 +70,14 @@ export function Sidebar() {
         }
     ];
 
-    const NavItem = ({ item, isMobileView = false }) => {
+    const NavItem = memo(({ item, isMobileView = false }) => {
         const Icon = item.icon;
 
         return (
             <NavLink
                 to={item.path}
                 className={({ isActive }) => cn(
-                    "transition-all duration-500 ease-in-out flex items-center relative overflow-hidden group/item",
+                    "transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center relative overflow-hidden group/item",
                     isMobileView ? "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-xl min-w-[60px]" : (
                         isExpanded
                             ? "w-full px-4 py-3 justify-start rounded-xl hover:bg-sidebar-accent/50"
@@ -87,19 +87,23 @@ export function Sidebar() {
                         ? "bg-gradient-to-br from-sidebar-primary to-sidebar-primary/80 shadow-lg text-white"
                         : "text-white/60 hover:text-white"
                 )}
+                style={{ willChange: 'transform, opacity, background-color' }}
             >
                 {({ isActive }) => (
                     <>
-                        <Icon className={cn("w-5 h-5 transition-all duration-500", isActive ? "text-white" : "text-inherit group-hover/item:scale-110")} />
+                        <Icon className={cn("w-5 h-5 transition-all duration-300", isActive ? "text-white" : "text-inherit group-hover/item:scale-110")} />
 
                         {!isMobileView && (
-                            <div className={cn(
-                                "ml-3 overflow-hidden transition-all duration-500 ease-in-out flex flex-col",
-                                isExpanded ? "w-auto opacity-100 translate-x-0" : "w-0 opacity-0 -translate-x-4"
-                            )}>
+                            <div
+                                className={cn(
+                                    "ml-3 overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col",
+                                    isExpanded ? "max-w-[200px] opacity-100 translate-x-0" : "max-w-0 opacity-0 -translate-x-4"
+                                )}
+                                style={{ willChange: 'max-width, opacity, transform' }}
+                            >
                                 <div className="font-medium text-sm whitespace-nowrap">{item.name}</div>
                                 {isActive && (
-                                    <div className="text-xs text-white/80 mt-0.5 whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-700">
+                                    <div className="text-xs text-white/80 mt-0.5 whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-500">
                                         {item.description}
                                     </div>
                                 )}
@@ -117,7 +121,7 @@ export function Sidebar() {
                 )}
             </NavLink>
         );
-    };
+    });
 
     if (isMobile) {
         return (
@@ -135,14 +139,15 @@ export function Sidebar() {
                 onMouseEnter={() => !isMobile && setIsExpanded(true)}
                 onMouseLeave={() => !isMobile && setIsExpanded(false)}
                 className={cn(
-                    "flex flex-col h-full transition-all duration-500 ease-in-out rounded-3xl",
+                    "flex flex-col h-full transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] rounded-3xl",
                     "bg-gradient-to-b from-sidebar via-sidebar to-sidebar-accent shadow-2xl border border-sidebar-border/20 overflow-hidden",
                     isExpanded ? "w-64" : "w-20"
                 )}
+                style={{ willChange: 'width' }}
             >
                 <div className="p-6 flex flex-col items-center relative">
                     <div className={cn(
-                        "w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-lg p-2 transition-all duration-500",
+                        "w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-lg p-2 transition-all duration-300",
                         isExpanded ? "scale-100" : "scale-90"
                     )}>
                         <img src={sliitLogo} alt="SLIIT" className="w-full h-full object-contain" />
@@ -164,7 +169,7 @@ export function Sidebar() {
 
                 <div className="p-4 border-t border-sidebar-border/10 bg-sidebar-accent/20">
                     <div className={cn(
-                        "flex items-center transition-all duration-500",
+                        "flex items-center transition-all duration-300",
                         isExpanded ? "flex-row px-2" : "flex-col"
                     )}>
                         <div
@@ -172,10 +177,13 @@ export function Sidebar() {
                         >
                             <span className="text-white font-bold text-sm">{user?.name?.charAt(0) || 'U'}</span>
                         </div>
-                        <div className={cn(
-                            "overflow-hidden transition-all duration-500 ease-in-out",
-                            isExpanded ? "ml-3 opacity-100 w-auto" : "ml-0 opacity-0 w-0 h-0"
-                        )}>
+                        <div
+                            className={cn(
+                                "overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                                isExpanded ? "ml-3 opacity-100 max-w-[150px]" : "ml-0 opacity-0 max-w-0 h-0"
+                            )}
+                            style={{ willChange: 'max-width, opacity' }}
+                        >
                             <p className="text-white font-medium text-xs truncate">{user?.name || 'User'}</p>
                             <p className="text-white/50 text-[9px] uppercase tracking-wider truncate">{user?.role}</p>
                         </div>
