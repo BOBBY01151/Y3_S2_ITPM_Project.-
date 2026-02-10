@@ -9,43 +9,55 @@ const Registrations = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
-    // Mock data for demonstration since the API might not have real data yet
-    useEffect(() => {
-        const mockPending = [
-            {
-                _id: "1",
-                name: "Vimukthi Buddika",
-                email: "vimukthi@sliit.lk",
-                role: "lecturer",
-                department: "Faculty of Computing",
-                createdAt: new Date().toISOString()
-            },
-            {
-                _id: "2",
-                name: "John Doe",
-                email: "john@sliit.lk",
-                role: "student",
-                department: "Faculty of Business",
-                createdAt: new Date().toISOString()
-            },
-            {
-                _id: "3",
-                name: "Jane Smith",
-                email: "jane@sliit.lk",
-                role: "council",
-                department: "Sports Council",
-                createdAt: new Date().toISOString()
-            }
-        ];
+    const token = localStorage.getItem('token');
 
-        setPendingUsers(mockPending);
-        setLoading(false);
+    useEffect(() => {
+        fetchRegistrations();
     }, []);
 
-    const handleAction = (id, status) => {
-        // In real app: await axios.put(`/api/users/${id}/status`, { status });
-        setPendingUsers(prev => prev.filter(user => user._id !== id));
-        toast.success(`User request ${status === 'active' ? 'approved' : 'rejected'} successfully`);
+    const fetchRegistrations = async () => {
+        try {
+            const response = await fetch('http://localhost:5001/api/users/pending', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch registrations');
+            }
+
+            const data = await response.json();
+            setPendingUsers(data);
+        } catch (err) {
+            toast.error(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAction = async (id, status) => {
+        try {
+            const response = await fetch(`http://localhost:5001/api/users/${id}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ status })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Action failed');
+            }
+
+            setPendingUsers(prev => prev.filter(user => user._id !== id));
+            toast.success(`User request ${status === 'active' ? 'approved' : 'rejected'} successfully`);
+        } catch (err) {
+            toast.error(err.message);
+        }
     };
 
     const filteredUsers = pendingUsers.filter(user =>

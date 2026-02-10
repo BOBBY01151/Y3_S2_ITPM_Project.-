@@ -14,8 +14,12 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // If it's a superadmin, make them active by default (for development/bootstrap)
-        const status = role === 'superadmin' ? 'active' : 'pending';
+        // Security check: Prevent self-registration as admin or superadmin
+        if (['admin', 'superadmin'].includes(role)) {
+            return res.status(403).json({ message: 'Administrative roles cannot be self-registered.' });
+        }
+
+        const status = 'pending'; // All new web registrations are pending approval
 
         user = new User({
             name,

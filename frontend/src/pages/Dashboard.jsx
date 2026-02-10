@@ -1,11 +1,17 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { LogOut, LayoutDashboard } from "lucide-react";
 import { Badge } from "../components/ui/badge.jsx";
-import { DashboardStats, UpcomingEventsList } from "../components/DashboardStats";
-import { SuperAdminStats } from "../components/SuperAdminStats";
 import { logout } from "../store/slices/authSlice";
+
+// Role-specific imports
+import StudentDashboard from "./dashboards/StudentDashboard";
+import LecturerDashboard from "./dashboards/LecturerDashboard";
+import CouncilDashboard from "./dashboards/CouncilDashboard";
+import CommunityDashboard from "./dashboards/CommunityDashboard";
+import { SuperAdminStats } from "../components/SuperAdminStats";
+import { DashboardStats } from "../components/DashboardStats";
 
 export default function Dashboard() {
     const { user } = useSelector((state) => state.auth);
@@ -15,44 +21,30 @@ export default function Dashboard() {
 
     const handleLogout = () => {
         dispatch(logout());
-        navigate("/login");
+        navigate(isSuperAdmin ? "/superadmin" : "/login");
     };
 
-    // Mock data for upcoming events
-    const upcomingEvents = [
-        {
-            id: "1",
-            title: "Annual Tech Conference 2026",
-            date: "Feb 15, 2026",
-            time: "9:00 AM",
-            attendees: 450,
-            status: "upcoming",
-        },
-        {
-            id: "2",
-            title: "Student Orientation Week",
-            date: "Feb 12, 2026",
-            time: "8:30 AM",
-            attendees: 320,
-            status: "upcoming",
-        },
-        {
-            id: "3",
-            title: "Career Fair 2026",
-            date: "Feb 20, 2026",
-            time: "10:00 AM",
-            attendees: 680,
-            status: "upcoming",
-        },
-        {
-            id: "4",
-            title: "Workshop: AI & Machine Learning",
-            date: "Feb 18, 2026",
-            time: "2:00 PM",
-            attendees: 150,
-            status: "upcoming",
-        },
-    ];
+    const renderRoleDashboard = () => {
+        switch (user?.role) {
+            case 'student': return <StudentDashboard />;
+            case 'lecturer': return <LecturerDashboard />;
+            case 'council': return <CouncilDashboard />;
+            case 'community': return <CommunityDashboard />;
+            case 'superadmin':
+                return (
+                    <div className="space-y-8">
+                        <SuperAdminStats />
+                        <div className="space-y-6">
+                            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                                System Overview
+                            </h2>
+                            <DashboardStats />
+                        </div>
+                    </div>
+                );
+            default: return <StudentDashboard />;
+        }
+    };
 
     return (
         <div className="bg-background">
@@ -60,46 +52,39 @@ export default function Dashboard() {
                 {/* Header Section */}
                 <div className="flex flex-col space-y-3">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-3xl font-bold text-foreground">
-                                Hello, {isSuperAdmin ? "Super Admin" : user?.name || "User"}! 👋
-                            </h1>
-                            <p className="text-muted-foreground mt-1">
-                                {isSuperAdmin
-                                    ? "Platform-wide monitoring and management system"
-                                    : "Welcome to SLIIT Event Management System"}
-                            </p>
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                                <LayoutDashboard className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h1 className="text-3xl font-bold text-foreground">
+                                    Hello, {user?.name || "User"}! 👋
+                                </h1>
+                                <p className="text-muted-foreground mt-1 capitalize">
+                                    {user?.role} Portal • Welcome back
+                                </p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <Badge className="bg-secondary/10 text-secondary border-secondary/20 px-3 py-1.5 backdrop-blur-sm">
+                            <Badge className="bg-secondary/10 text-secondary border-secondary/20 px-3 py-1.5 backdrop-blur-sm hidden sm:flex">
                                 <div className="w-2 h-2 bg-secondary rounded-full mr-2 animate-pulse"></div>
-                                {isSuperAdmin ? "System Monitor Active" : "Real-time monitoring active"}
+                                System Active
                             </Badge>
                             <button
                                 onClick={handleLogout}
                                 className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm font-medium text-sm"
                             >
                                 <LogOut className="w-4 h-4" />
-                                <span>Logout</span>
+                                <span className="hidden sm:inline">Logout</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Super Admin Specific Stats */}
-                {isSuperAdmin && <SuperAdminStats />}
-
-                <div className="space-y-6">
-                    <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                        {isSuperAdmin ? "Event Overview" : "Your Statistics"}
-                    </h2>
-                    {/* Dashboard Statistics */}
-                    <DashboardStats />
-                </div>
-
-                {/* Upcoming Events List */}
-                <UpcomingEventsList events={upcomingEvents} />
+                {/* Role Specific Content */}
+                {renderRoleDashboard()}
             </div>
         </div>
     );
 }
+

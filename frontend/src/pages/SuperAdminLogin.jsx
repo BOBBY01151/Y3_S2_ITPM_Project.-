@@ -1,0 +1,104 @@
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { loginSuccess } from '../store/slices/authSlice';
+import sliitLogo from "../assets/39bee516b4e52b07096c8df6493b386743d2a70d.png";
+
+const SuperAdminLogin = () => {
+    const [email, setEmail] = useState('superadmin@sliit.lk');
+    const [password, setPassword] = useState('superpassword123');
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const [loading, setLoading] = useState(false);
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const response = await fetch('http://localhost:5001/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Login failed');
+            }
+
+            dispatch(loginSuccess({
+                token: data.token,
+                user: data.user
+            }));
+
+            navigate('/admin/dashboard');
+        } catch (err) {
+            console.error('Login error:', err);
+            alert(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center p-4">
+            <div className="max-w-md w-full bg-card rounded-3xl shadow-2xl border border-border/50 p-8 space-y-8">
+                <div className="text-center">
+                    <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-lg p-3 mx-auto mb-6">
+                        <img src={sliitLogo} alt="SLIIT Logo" className="w-full h-full object-contain" />
+                    </div>
+                    <h1 className="text-3xl font-bold text-foreground">SLIIT EMS</h1>
+                    <p className="text-muted-foreground mt-2">Super Admin Access Portal</p>
+                </div>
+
+                <form className="space-y-6" onSubmit={handleLogin}>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-foreground ml-1">Admin Email</label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-muted/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                            placeholder="admin@sliit.lk"
+                            required
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-foreground ml-1">Password</label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-muted/50 border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                            placeholder="••••••••"
+                            required
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-xl shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        {loading ? (
+                            <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+                        ) : "Login as Super Admin"}
+                    </button>
+                </form>
+
+                <div className="text-center">
+                    <p className="text-sm text-muted-foreground">
+                        Restricted Access. Unauthorized entry is monitored.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default SuperAdminLogin;
