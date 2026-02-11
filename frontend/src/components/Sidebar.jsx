@@ -173,9 +173,13 @@ export function Sidebar() {
                         isExpanded ? "flex-row px-2" : "flex-col"
                     )}>
                         <div
-                            className="w-10 h-10 bg-sidebar-primary rounded-full flex items-center justify-center shadow-lg shrink-0 border-2 border-white/10"
+                            className="w-10 h-10 bg-sidebar-primary rounded-full flex items-center justify-center shadow-lg shrink-0 border-2 border-white/10 overflow-hidden"
                         >
-                            <span className="text-white font-bold text-sm">{user?.name?.charAt(0) || 'U'}</span>
+                            {user?.profilePhoto ? (
+                                <img src={user.profilePhoto} alt={user.name} className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-white font-bold text-sm">{user?.name?.charAt(0) || 'U'}</span>
+                            )}
                         </div>
                         <div
                             className={cn(

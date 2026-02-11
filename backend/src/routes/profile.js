@@ -8,9 +8,11 @@ const { getProfile, createOrUpdateProfile } = require('../controllers/profileCon
 // @access  Private
 router.get('/me', protect, getProfile);
 
+const upload = require('../middleware/upload');
+
 // @route   POST /api/profile
 // @desc    Create or update user's profile
 // @access  Private
-router.post('/', protect, createOrUpdateProfile);
+router.post('/', protect, upload.single('profilePhoto'), createOrUpdateProfile);
 
 module.exports = router;

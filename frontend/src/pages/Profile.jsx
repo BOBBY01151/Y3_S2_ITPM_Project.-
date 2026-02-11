@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { updateUser } from "../store/slices/authSlice";
 import {
     User,
     Mail,
@@ -25,6 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 
 export default function Profile() {
     const { user, token } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -52,6 +54,8 @@ export default function Profile() {
         confirmPassword: ""
     });
 
+    const [profileImageFile, setProfileImageFile] = useState(null);
+
     useEffect(() => {
         fetchProfile();
         // Initialize account data from user
@@ -78,6 +82,10 @@ export default function Profile() {
                     skills: data.skills.join(", "),
                     semester: data.semester || ""
                 });
+                // Sync profile photo with global auth state
+                if (data.profilePhoto) {
+                    dispatch(updateUser({ profilePhoto: data.profilePhoto }));
+                }
             }
         } catch (err) {
             console.error("Error fetching profile:", err);
@@ -91,19 +99,40 @@ export default function Profile() {
         setSaving(true);
 
         try {
+            const formDataToSend = new FormData();
+
+            // Append all text fields
+            Object.keys(formData).forEach(key => {
+                if (key !== 'profilePhoto') {
+                    formDataToSend.append(key, formData[key]);
+                }
+            });
+
+            // If there's a file, append it. If not, append the existing URL string
+            if (profileImageFile) {
+                formDataToSend.append('profilePhoto', profileImageFile);
+            } else {
+                formDataToSend.append('profilePhoto', formData.profilePhoto);
+            }
+
             const response = await fetch("http://localhost:5001/api/profile", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
+                    // "Content-Type": "multipart/form-data", // Browser sets this automatically with boundary
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify(formData)
+                body: formDataToSend
             });
 
             const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.message || "Failed to update profile");
+            }
+
+            // Update global state with new profile photo and other details if needed
+            if (data.profilePhoto) {
+                dispatch(updateUser({ profilePhoto: data.profilePhoto }));
             }
 
             toast.success("Profile updated successfully!");
@@ -128,6 +157,16 @@ export default function Profile() {
 
     const handlePasswordChange = (e) => {
         setPasswordData({ ...passwordData, [e.target.id]: e.target.value });
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setProfileImageFile(file);
+            // Create a preview URL
+            const previewUrl = URL.createObjectURL(file);
+            setFormData({ ...formData, profilePhoto: previewUrl });
+        }
     };
 
     const handleAccountUpdate = async (e) => {
@@ -438,16 +477,34 @@ export default function Profile() {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="profilePhoto">Profile Photo URL</Label>
-                            <div className="flex gap-2">
-                                <Input
-                                    id="profilePhoto"
-                                    value={formData.profilePhoto}
-                                    onChange={handleChange}
-                                    placeholder="https://example.com/photo.jpg"
-                                />
-                                <div className="w-10 h-10 bg-muted/50 rounded-lg flex items-center justify-center shrink-0">
-                                    <Camera className="w-5 h-5 text-muted-foreground" />
+                            <Label htmlFor="profilePhoto">Profile Photo</Label>
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center gap-4">
+                                    {formData.profilePhoto ? (
+                                        <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20 shadow-md">
+                                            <img
+                                                src={formData.profilePhoto}
+                                                alt="Profile Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center border-2 border-dashed border-muted-foreground/30">
+                                            <Camera className="w-8 h-8 text-muted-foreground/50" />
+                                        </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <Input
+                                            id="profilePhoto"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                            className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                                        />
+                                        <p className="text-xs text-muted-foreground mt-1 ml-1">
+                                            Max size 5MB. Formats: JPG, PNG, GIF
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

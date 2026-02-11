@@ -27,12 +27,17 @@ exports.createOrUpdateProfile = async (req, res) => {
         faculty,
         year,
         gender,
-        profilePhoto,
         degreeProgramme,
         phoneNumber,
         semester,
         skills
     } = req.body;
+
+    let profilePhoto = req.body.profilePhoto;
+    if (req.file) {
+        const url = req.protocol + '://' + req.get('host');
+        profilePhoto = url + '/uploads/' + req.file.filename;
+    }
 
     // Build profile object
     const profileFields = {
@@ -44,7 +49,7 @@ exports.createOrUpdateProfile = async (req, res) => {
         degreeProgramme,
         phoneNumber,
         semester,
-        skills: Array.isArray(skills) ? skills : skills.split(',').map(skill => skill.trim())
+        skills: skills ? (Array.isArray(skills) ? skills : skills.split(',').map(skill => skill.trim())) : []
     };
 
     try {
