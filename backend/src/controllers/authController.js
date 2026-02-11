@@ -5,7 +5,7 @@ const User = require('../models/User');
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = async (req, res) => {
-    const { name, email, password, role, department } = req.body;
+    const { name, email, password, role, department, campus } = req.body;
 
     try {
         let user = await User.findOne({ email });
@@ -27,6 +27,7 @@ exports.register = async (req, res) => {
             password,
             role,
             department,
+            campus,
             status
         });
 
@@ -50,6 +51,7 @@ exports.register = async (req, res) => {
 // @access  Public
 exports.login = async (req, res) => {
     const { email, password } = req.body;
+    console.log(`[DEBUG] Login attempt for email: ${email}`);
 
 
     try {
@@ -84,6 +86,7 @@ exports.login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                campus: user.campus,
                 status: user.status
             }
         });

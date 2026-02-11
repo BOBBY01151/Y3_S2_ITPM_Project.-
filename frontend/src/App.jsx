@@ -10,6 +10,7 @@ import SuperAdminLogin from './pages/SuperAdminLogin';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import StudentEvents from './pages/StudentEvents';
+import StudySupport from './pages/StudySupport';
 import './i18n/i18n';
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
                     <Route path="/student" element={<Layout />} >
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="events" element={<StudentEvents />} />
+                        <Route path="study-support" element={<StudySupport />} />
                         <Route path="settings" element={<Profile />} />
                     </Route>
 

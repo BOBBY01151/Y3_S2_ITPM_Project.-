@@ -12,7 +12,8 @@ const Register = () => {
         password: '',
         confirmPassword: '',
         role: 'student',
-        department: ''
+        department: '',
+        campus: ''
     });
 
     const roles = [
@@ -31,6 +32,13 @@ const Register = () => {
         "Sports Council",
         "Student Council",
         "External Community"
+    ];
+
+    const campuses = [
+        "Metro Campus",
+        "Malabe Campus",
+        "Kandy Campus",
+        "Northern Campus"
     ];
 
     const handleChange = (e) => {
@@ -57,7 +65,8 @@ const Register = () => {
                     email: formData.email,
                     password: formData.password,
                     role: formData.role,
-                    department: formData.department
+                    department: formData.department,
+                    campus: formData.campus
                 }),
             });
 
@@ -130,6 +139,28 @@ const Register = () => {
                                 >
                                     {roles.map((r) => (
                                         <option key={r.id} value={r.id}>{r.label}</option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Campus selection dropdown */}
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-foreground/80 ml-1">Campus</label>
+                            <div className="relative">
+                                <select
+                                    name="campus"
+                                    value={formData.campus}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 rounded-xl bg-muted/30 border border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none appearance-none cursor-pointer"
+                                    required
+                                >
+                                    <option value="" disabled>Select your campus</option>
+                                    {campuses.map((c) => (
+                                        <option key={c} value={c}>{c}</option>
                                     ))}
                                 </select>
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">

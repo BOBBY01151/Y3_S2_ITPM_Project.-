@@ -11,6 +11,11 @@ const studentProfileSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    campus: {
+        type: String,
+        enum: ['Metro Campus', 'Malabe Campus', 'Kandy Campus', 'Northern Campus'],
+        required: true
+    },
     year: {
         type: String,
         required: true

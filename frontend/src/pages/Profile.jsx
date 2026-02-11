@@ -41,12 +41,14 @@ export default function Profile() {
         degreeProgramme: "",
         phoneNumber: "",
         semester: "",
+        campus: "",
         skills: ""
     });
 
     const [accountData, setAccountData] = useState({
         name: "",
-        email: ""
+        email: "",
+        campus: ""
     });
 
     const [passwordData, setPasswordData] = useState({
@@ -58,12 +60,23 @@ export default function Profile() {
 
     useEffect(() => {
         fetchProfile();
+    }, [token]);
+
+    useEffect(() => {
         // Initialize account data from user
         if (user) {
             setAccountData({
                 name: user.name || "",
-                email: user.email || ""
+                email: user.email || "",
+                campus: user.campus || ""
             });
+
+            // Also sync campus and faculty if coming from user model and profile is not loaded yet
+            setFormData(prev => ({
+                ...prev,
+                campus: prev.campus || user.campus || "",
+                faculty: prev.faculty || user.department || ""
+            }));
         }
     }, [user]);
 
@@ -78,14 +91,27 @@ export default function Profile() {
             if (response.ok) {
                 const data = await response.json();
                 setFormData({
-                    ...data,
-                    skills: data.skills.join(", "),
-                    semester: data.semester || ""
+                    faculty: data.faculty || user?.department || "",
+                    year: data.year || "",
+                    gender: data.gender || "",
+                    profilePhoto: data.profilePhoto || user?.profilePhoto || "",
+                    degreeProgramme: data.degreeProgramme || "",
+                    phoneNumber: data.phoneNumber || "",
+                    semester: data.semester || "",
+                    campus: data.campus || user?.campus || "",
+                    skills: data.skills ? (Array.isArray(data.skills) ? data.skills.join(", ") : data.skills) : ""
                 });
                 // Sync profile photo with global auth state
                 if (data.profilePhoto) {
                     dispatch(updateUser({ profilePhoto: data.profilePhoto }));
                 }
+            } else if (response.status === 404 && user) {
+                // If profile doesn't exist, pre-populate with what we have from user model
+                setFormData(prev => ({
+                    ...prev,
+                    campus: user.campus || "",
+                    faculty: user.department || "",
+                }));
             }
         } catch (err) {
             console.error("Error fetching profile:", err);
@@ -124,14 +150,19 @@ export default function Profile() {
                 body: formDataToSend
             });
 
+            console.log('[DEBUG] Profile Update Status:', response.status);
             const data = await response.json();
+            console.log('[DEBUG] Profile Update Data:', data);
 
             if (!response.ok) {
                 throw new Error(data.message || "Failed to update profile");
             }
 
-            // Update global state with new profile photo and other details if needed
-            if (data.profilePhoto) {
+            // Update global state with return data
+            if (data.user) {
+                dispatch(updateUser(data.user));
+            } else if (data.profilePhoto) {
+                // Fallback for older API versions or if user not returned
                 dispatch(updateUser({ profilePhoto: data.profilePhoto }));
             }
 
@@ -183,10 +214,20 @@ export default function Profile() {
                 body: JSON.stringify(accountData)
             });
 
+            console.log('[DEBUG] Account Update Status:', response.status);
             const data = await response.json();
+            console.log('[DEBUG] Account Update Data:', data);
 
             if (!response.ok) {
                 throw new Error(data.message || "Failed to update account details");
+            }
+
+            // Update global state
+            dispatch(updateUser(data.user));
+
+            // Sync campus in profile form if it was updated in account settings
+            if (data.user.campus) {
+                setFormData(prev => ({ ...prev, campus: data.user.campus }));
             }
 
             toast.success("Account details updated successfully!");
@@ -296,6 +337,23 @@ export default function Profile() {
                                     required
                                 />
                             </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="campus">Campus</Label>
+                                <Select
+                                    onValueChange={(val) => setAccountData({ ...accountData, campus: val })}
+                                    value={accountData.campus}
+                                >
+                                    <SelectTrigger id="campus-account">
+                                        <SelectValue placeholder="Select campus" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Metro Campus">Metro Campus</SelectItem>
+                                        <SelectItem value="Malabe Campus">Malabe Campus</SelectItem>
+                                        <SelectItem value="Kandy Campus">Kandy Campus</SelectItem>
+                                        <SelectItem value="Northern Campus">Northern Campus</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                         <div className="flex justify-end">
                             <Button
@@ -377,7 +435,7 @@ export default function Profile() {
                     </CardHeader>
                     <CardContent className="pt-6 space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="faculty font-medium">Faculty</Label>
+                            <Label htmlFor="faculty">Faculty</Label>
                             <Input
                                 id="faculty"
                                 value={formData.faculty}
@@ -396,6 +454,23 @@ export default function Profile() {
                                 placeholder="e.g. Software Engineering"
                                 required
                             />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="campus">Campus</Label>
+                            <Select
+                                onValueChange={(val) => setFormData({ ...formData, campus: val })}
+                                value={formData.campus}
+                            >
+                                <SelectTrigger id="campus">
+                                    <SelectValue placeholder="Select campus" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Metro Campus">Metro Campus</SelectItem>
+                                    <SelectItem value="Malabe Campus">Malabe Campus</SelectItem>
+                                    <SelectItem value="Kandy Campus">Kandy Campus</SelectItem>
+                                    <SelectItem value="Northern Campus">Northern Campus</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -450,7 +525,7 @@ export default function Profile() {
                     </CardHeader>
                     <CardContent className="pt-6 space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="phoneNumber font-medium">Phone Number</Label>
+                            <Label htmlFor="phoneNumber">Phone Number</Label>
                             <Input
                                 id="phoneNumber"
                                 value={formData.phoneNumber}

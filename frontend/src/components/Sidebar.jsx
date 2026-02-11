@@ -8,7 +8,8 @@ import {
     User,
     Calendar,
     X,
-    UserPlus
+    UserPlus,
+    BookOpen
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { NavLink, useLocation } from "react-router-dom";
@@ -61,6 +62,13 @@ export function Sidebar() {
             path: `${rolePath}/reports`,
             description: "Generate reports"
         },
+        ...(user?.role === 'student' ? [{
+            id: "study-support",
+            name: "Study Support",
+            icon: BookOpen,
+            path: `${rolePath}/study-support`,
+            description: "Study materials & help"
+        }] : []),
         {
             id: "settings",
             name: "Profile",

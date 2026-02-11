@@ -8,8 +8,8 @@ exports.getPendingUsers = async (req, res) => {
         const users = await User.find({ status: 'pending' }).select('-password');
         res.json(users);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        console.error('[ERROR] getPendingUsers:', err);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -35,8 +35,8 @@ exports.updateUserStatus = async (req, res) => {
 
         res.json({ message: `User status updated to ${status}`, user });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        console.error('[ERROR] updateUserStatus:', err);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -44,7 +44,9 @@ exports.updateUserStatus = async (req, res) => {
 // @route   PUT /api/users/me
 // @access  Private
 exports.updateAccountDetails = async (req, res) => {
-    const { name, email } = req.body;
+    const { name, email, campus } = req.body;
+    console.log('[DEBUG] updateAccountDetails called. Body:', JSON.stringify(req.body, null, 2));
+    console.log('[DEBUG] req.user.id:', req.user.id);
 
     try {
         const user = await User.findById(req.user.id);
@@ -62,19 +64,27 @@ exports.updateAccountDetails = async (req, res) => {
             user.email = email;
         }
 
-        // Update name if provided
         if (name) {
             user.name = name;
         }
 
+        if (campus) {
+            user.campus = campus;
+        }
+
         await user.save();
+        console.log('[DEBUG] User saved successfully. User ID:', user._id);
 
         // Return user without password
         const updatedUser = await User.findById(user._id).select('-password');
         res.json({ message: 'Account details updated successfully', user: updatedUser });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        console.error('[ERROR] updateAccountDetails:', err);
+        if (err.name === 'ValidationError') {
+            const messages = Object.values(err.errors).map(val => val.message);
+            return res.status(400).json({ message: messages.join(', ') });
+        }
+        res.status(500).json({ message: err.message || 'Server error' });
     }
 };
 
@@ -106,7 +116,7 @@ exports.changePassword = async (req, res) => {
 
         res.json({ message: 'Password changed successfully' });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        console.error('[ERROR] changePassword:', err);
+        res.status(500).json({ message: 'Server error' });
     }
 };

@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
         default: 'student',
     },
     department: String,
+    campus: {
+        type: String,
+        enum: ['Metro Campus', 'Malabe Campus', 'Kandy Campus', 'Northern Campus'],
+    },
     languagePreference: {
         type: String,
         enum: ['en', 'ta'],

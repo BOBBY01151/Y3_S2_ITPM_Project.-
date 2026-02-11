@@ -5,7 +5,8 @@ export const loadUser = () => async (dispatch) => {
     try {
         const token = localStorage.getItem('token');
 
-        if (!token) {
+        if (!token || token === 'null' || token === 'undefined') {
+            localStorage.removeItem('token');
             return dispatch(logout());
         }
 
@@ -18,6 +19,11 @@ export const loadUser = () => async (dispatch) => {
                 'Authorization': `Bearer ${token}`
             }
         });
+
+        if (response.status === 401) {
+            dispatch(logout());
+            return;
+        }
 
         const data = await response.json();
 

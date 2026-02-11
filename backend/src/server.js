@@ -50,8 +50,11 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+    console.error('[GLOBAL ERROR HANDLER]', err);
+    res.status(500).json({
+        message: err.message || 'Something broke!',
+        error: process.env.NODE_ENV === 'development' ? err.stack : {}
+    });
 });
 
 app.listen(PORT, '0.0.0.0', () => {

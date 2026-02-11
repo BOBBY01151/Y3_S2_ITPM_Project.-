@@ -16,6 +16,18 @@ const studyMaterialSchema = new mongoose.Schema({
         required: true,
     },
     subject: String,
+    faculty: {
+        type: String,
+        required: true,
+    },
+    graduateYear: {
+        type: String,
+        required: true,
+    },
+    degreeProgram: {
+        type: String,
+        required: true,
+    },
     tags: [String],
     language: {
         type: String,
