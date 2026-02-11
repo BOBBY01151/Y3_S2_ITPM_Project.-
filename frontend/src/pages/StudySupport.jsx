@@ -11,10 +11,13 @@ import {
     Filter,
     ArrowUpRight,
     Loader2,
-    BookOpen
+    BookOpen,
+    Pencil,
+    Trash2
 } from "lucide-react";
 import StudySupportSidebar from "../components/StudySupportSidebar";
 import UploadMaterialModal from "../components/UploadMaterialModal";
+import EditMaterialModal from "../components/EditMaterialModal";
 import MaterialPreviewModal from "../components/MaterialPreviewModal";
 import { toast } from "sonner";
 
@@ -24,7 +27,9 @@ export default function StudySupport() {
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedMaterial, setSelectedMaterial] = useState(null);
+    const [materialToUpdate, setMaterialToUpdate] = useState(null);
     const [filters, setFilters] = useState({
         search: "",
         faculty: "",
@@ -61,6 +66,29 @@ export default function StudySupport() {
 
     const handleUploadSuccess = (newMaterial) => {
         setMaterials([newMaterial, ...materials]);
+    };
+
+    const handleUpdateSuccess = (updatedMaterial) => {
+        setMaterials(materials.map(m => m._id === updatedMaterial._id ? updatedMaterial : m));
+    };
+
+    const handleEdit = (material) => {
+        setMaterialToUpdate(material);
+        setIsEditModalOpen(true);
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to delete this material?")) {
+            try {
+                await axios.delete(`http://localhost:5001/api/materials/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setMaterials(materials.filter(m => m._id !== id));
+                toast.success("Material deleted successfully");
+            } catch (error) {
+                toast.error("Failed to delete material");
+            }
+        }
     };
 
     return (
@@ -134,6 +162,24 @@ export default function StudySupport() {
                                             >
                                                 <Download className="w-5 h-5" />
                                             </a>
+                                            {user && material.uploader && (user._id === material.uploader._id || user.id === material.uploader._id || user.role === 'admin') && (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleEdit(material)}
+                                                        className="p-2 opacity-0 group-hover:opacity-100 bg-white/10 hover:bg-amber-500 hover:text-white rounded-xl transition-all duration-300"
+                                                        title="Edit Material"
+                                                    >
+                                                        <Pencil className="w-5 h-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(material._id)}
+                                                        className="p-2 opacity-0 group-hover:opacity-100 bg-white/10 hover:bg-destructive hover:text-white rounded-xl transition-all duration-300"
+                                                        title="Delete Material"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
 
@@ -198,6 +244,17 @@ export default function StudySupport() {
                 isOpen={isUploadModalOpen}
                 onClose={() => setIsUploadModalOpen(false)}
                 onUploadSuccess={handleUploadSuccess}
+            />
+
+            {/* Edit Modal */}
+            <EditMaterialModal
+                isOpen={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setMaterialToUpdate(null);
+                }}
+                material={materialToUpdate}
+                onUpdateSuccess={handleUpdateSuccess}
             />
 
             {/* Preview Modal */}

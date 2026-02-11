@@ -62,3 +62,76 @@ exports.getMaterials = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
+// @desc    Update material
+// @route   PUT /api/materials/:id
+// @access  Private (Uploader/Admin)
+exports.updateMaterial = async (req, res) => {
+    try {
+        let material = await StudyMaterial.findById(req.params.id);
+
+        if (!material) {
+            return res.status(404).json({ message: 'Material not found' });
+        }
+
+        // Make sure user is uploader or admin
+        if (material.uploader.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(401).json({ message: 'User not authorized' });
+        }
+
+        const { title, description, subject, tags, language, faculty, graduateYear, degreeProgram } = req.body;
+
+        material = await StudyMaterial.findByIdAndUpdate(
+            req.params.id,
+            {
+                $set: {
+                    title,
+                    description,
+                    subject,
+                    tags,
+                    language,
+                    faculty,
+                    graduateYear,
+                    degreeProgram
+                }
+            },
+            { new: true }
+        ).populate('uploader', 'name');
+
+        res.json(material);
+    } catch (err) {
+        console.error(err.message);
+        if (err.kind === 'ObjectId') {
+            return res.status(404).json({ message: 'Material not found' });
+        }
+        res.status(500).send('Server error');
+    }
+};
+
+// @desc    Delete material
+// @route   DELETE /api/materials/:id
+// @access  Private (Uploader/Admin)
+exports.deleteMaterial = async (req, res) => {
+    try {
+        const material = await StudyMaterial.findById(req.params.id);
+
+        if (!material) {
+            return res.status(404).json({ message: 'Material not found' });
+        }
+
+        // Make sure user is uploader or admin
+        if (material.uploader.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(401).json({ message: 'User not authorized' });
+        }
+
+        await material.deleteOne();
+
+        res.json({ message: 'Material removed' });
+    } catch (err) {
+        console.error(err.message);
+        if (err.kind === 'ObjectId') {
+            return res.status(404).json({ message: 'Material not found' });
+        }
+        res.status(500).send('Server error');
+    }
+};

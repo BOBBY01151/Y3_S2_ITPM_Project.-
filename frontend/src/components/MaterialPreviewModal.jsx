@@ -1,5 +1,6 @@
 import { X, Download, ExternalLink, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { getDownloadUrl, getPreviewUrl } from "../lib/cloudinaryUtils";
 
 export default function MaterialPreviewModal({ isOpen, onClose, material }) {
     const [loading, setLoading] = useState(true);
@@ -34,7 +35,7 @@ export default function MaterialPreviewModal({ isOpen, onClose, material }) {
                             <ExternalLink className="w-5 h-5" />
                         </a>
                         <a
-                            href={material.fileUrl}
+                            href={getDownloadUrl(material.fileUrl)}
                             download
                             className="p-2 hover:bg-secondary rounded-xl transition-colors text-muted-foreground hover:text-foreground"
                             title="Download"
@@ -60,7 +61,7 @@ export default function MaterialPreviewModal({ isOpen, onClose, material }) {
 
                     {isPDF ? (
                         <iframe
-                            src={`${material.fileUrl}#toolbar=0`}
+                            src={`${getPreviewUrl(material.fileUrl)}#toolbar=0`}
                             className="w-full h-full border-none"
                             onLoad={() => setLoading(false)}
                             title={material.title}
@@ -84,7 +85,7 @@ export default function MaterialPreviewModal({ isOpen, onClose, material }) {
                                 <p className="text-muted-foreground mt-2">This file type cannot be previewed directly.</p>
                             </div>
                             <a
-                                href={material.fileUrl}
+                                href={getPreviewUrl(material.fileUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg shadow-primary/20"
