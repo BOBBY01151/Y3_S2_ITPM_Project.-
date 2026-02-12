@@ -14,7 +14,8 @@ export default function UploadMaterialModal({ isOpen, onClose, onUploadSuccess }
         faculty: "",
         graduateYear: "",
         degreeProgram: "",
-        language: "en"
+        language: "en",
+        externalLink: ""
     });
     const [file, setFile] = useState(null);
 
@@ -34,14 +35,23 @@ export default function UploadMaterialModal({ isOpen, onClose, onUploadSuccess }
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
+            // Check file size (100MB limit)
+            const maxSize = 100 * 1024 * 1024; // 100MB in bytes
+            if (selectedFile.size > maxSize) {
+                toast.error("File size exceeds 100MB limit. Please use Google Drive link for larger files.");
+                e.target.value = null; // Reset file input
+                return;
+            }
             setFile(selectedFile);
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!file) {
-            toast.error("Please select a file to upload");
+
+        // Validate that either file or external link is provided
+        if (!file && !formData.externalLink) {
+            toast.error("Please upload a file or provide a Google Drive link");
             return;
         }
 
@@ -49,7 +59,9 @@ export default function UploadMaterialModal({ isOpen, onClose, onUploadSuccess }
 
         try {
             const data = new FormData();
-            data.append("file", file);
+            if (file) {
+                data.append("file", file);
+            }
             // Append other form fields
             Object.keys(formData).forEach(key => {
                 data.append(key, formData[key]);
@@ -77,7 +89,8 @@ export default function UploadMaterialModal({ isOpen, onClose, onUploadSuccess }
                 faculty: "",
                 graduateYear: "",
                 degreeProgram: "",
-                language: "en"
+                language: "en",
+                externalLink: ""
             });
             setFile(null);
         } catch (error) {
@@ -187,6 +200,19 @@ export default function UploadMaterialModal({ isOpen, onClose, onUploadSuccess }
                             />
                         </div>
 
+                        {/* Google Drive Link (Optional) */}
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-sm font-semibold ml-1">Google Drive Link (Optional)</label>
+                            <input
+                                type="url"
+                                className="w-full px-4 py-2.5 bg-secondary/30 border rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all"
+                                value={formData.externalLink}
+                                onChange={(e) => setFormData({ ...formData, externalLink: e.target.value })}
+                                placeholder="https://drive.google.com/file/d/..."
+                            />
+                            <p className="text-xs text-muted-foreground ml-1">For files larger than 100MB, upload to Google Drive and paste the link here</p>
+                        </div>
+
                         {/* File Upload Area */}
                         <div className="md:col-span-2">
                             <label className="text-sm font-semibold ml-1 block mb-2">Upload File (PDF, Image, etc.)</label>
@@ -213,7 +239,7 @@ export default function UploadMaterialModal({ isOpen, onClose, onUploadSuccess }
                                         </div>
                                         <div className="text-center">
                                             <p className="font-medium text-sm">Click or drag to upload</p>
-                                            <p className="text-xs text-muted-foreground">Any file up to 10MB</p>
+                                            <p className="text-xs text-muted-foreground">Any file up to 100MB</p>
                                         </div>
                                     </>
                                 )}

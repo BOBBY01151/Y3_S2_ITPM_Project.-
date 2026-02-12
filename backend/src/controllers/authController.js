@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const StudentProfile = require('../models/StudentProfile');
+
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
@@ -76,6 +78,16 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: req.t('auth.invalid_credentials') });
         }
 
+        // Lazy Sync: Check if profile photo exists in StudentProfile but not in User
+        if (!user.profilePhoto && user.role === 'student') {
+            const profile = await StudentProfile.findOne({ user: user._id });
+            if (profile && profile.profilePhoto) {
+                console.log(`[DEBUG] Syncing profile photo for user ${user.email}`);
+                user.profilePhoto = profile.profilePhoto;
+                await user.save();
+            }
+        }
+
         const payload = { id: user.id };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
@@ -87,7 +99,8 @@ exports.login = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 campus: user.campus,
-                status: user.status
+                status: user.status,
+                profilePhoto: user.profilePhoto
             }
         });
     } catch (err) {
@@ -102,6 +115,17 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
+
+        // Lazy Sync: Check if profile photo exists in StudentProfile but not in User
+        if (user && !user.profilePhoto && user.role === 'student') {
+            const profile = await StudentProfile.findOne({ user: user._id });
+            if (profile && profile.profilePhoto) {
+                console.log(`[DEBUG] Syncing profile photo for user ${user.email} (getMe)`);
+                user.profilePhoto = profile.profilePhoto;
+                await user.save();
+            }
+        }
+
         res.json(user);
     } catch (err) {
         console.error(err.message);

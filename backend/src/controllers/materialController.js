@@ -5,26 +5,51 @@ const StudyMaterial = require('../models/StudyMaterial');
 // @access  Private (Student/Lecturer)
 exports.uploadMaterial = async (req, res) => {
     try {
-        const { title, description, subject, tags, language, faculty, graduateYear, degreeProgram } = req.body;
+        const { title, description, subject, tags, language, faculty, graduateYear, degreeProgram, externalLink } = req.body;
 
-        if (!req.file) {
-            return res.status(400).json({ message: 'Please upload a file' });
+        // Validate that either file or external link is provided
+        if (!req.file && !externalLink) {
+            return res.status(400).json({ message: 'Please upload a file or provide an external link' });
         }
 
-        const material = new StudyMaterial({
+        // Validate external link format if provided
+        if (externalLink) {
+            const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?(\?.*)?$/;
+            if (!urlPattern.test(externalLink)) {
+                return res.status(400).json({ message: 'Please provide a valid URL for the external link' });
+            }
+        }
+
+        const materialData = {
             title,
             description,
-            fileUrl: req.file.path, // URL from Cloudinary via multer-storage-cloudinary
-            uploader: req.user.id,
+            uploader: req.user._id,
             subject,
             tags,
             language,
             faculty,
             graduateYear,
             degreeProgram
-        });
+        };
+
+        // Add file data if file was uploaded
+        if (req.file) {
+            materialData.fileUrl = req.file.path; // URL from Cloudinary
+            materialData.fileSize = req.file.size; // Size in bytes
+        }
+
+        // Add external link if provided
+        if (externalLink) {
+            materialData.externalLink = externalLink;
+        }
+
+        const material = new StudyMaterial(materialData);
 
         await material.save();
+
+        // Populate uploader name before sending response
+        await material.populate('uploader', 'name');
+
         res.status(201).json(material);
     } catch (err) {
         console.error('[UPLOAD ERROR]', err);
@@ -75,11 +100,11 @@ exports.updateMaterial = async (req, res) => {
         }
 
         // Make sure user is uploader or admin
-        if (material.uploader.toString() !== req.user.id && req.user.role !== 'admin') {
+        if (material.uploader.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
             return res.status(401).json({ message: 'User not authorized' });
         }
 
-        const { title, description, subject, tags, language, faculty, graduateYear, degreeProgram } = req.body;
+        const { title, description, subject, tags, language, faculty, graduateYear, degreeProgram, externalLink } = req.body;
 
         material = await StudyMaterial.findByIdAndUpdate(
             req.params.id,
@@ -92,7 +117,10 @@ exports.updateMaterial = async (req, res) => {
                     language,
                     faculty,
                     graduateYear,
-                    degreeProgram
+                    faculty,
+                    graduateYear,
+                    degreeProgram,
+                    externalLink
                 }
             },
             { new: true }
@@ -120,7 +148,7 @@ exports.deleteMaterial = async (req, res) => {
         }
 
         // Make sure user is uploader or admin
-        if (material.uploader.toString() !== req.user.id && req.user.role !== 'admin') {
+        if (material.uploader.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
             return res.status(401).json({ message: 'User not authorized' });
         }
 

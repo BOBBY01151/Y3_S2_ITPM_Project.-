@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
         enum: ['pending', 'active', 'rejected'],
         default: 'pending',
     },
+    profilePhoto: {
+        type: String, // URL/Path to the photo
+        default: ''
+    },
 }, { timestamps: true });
 
 userSchema.pre('save', async function () {

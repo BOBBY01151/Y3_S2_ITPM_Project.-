@@ -14,7 +14,8 @@ export default function EditMaterialModal({ isOpen, onClose, material, onUpdateS
         faculty: "",
         graduateYear: "",
         degreeProgram: "",
-        language: "en"
+        language: "en",
+        externalLink: ""
     });
 
     useEffect(() => {
@@ -26,7 +27,8 @@ export default function EditMaterialModal({ isOpen, onClose, material, onUpdateS
                 faculty: material.faculty || "",
                 graduateYear: material.graduateYear || "",
                 degreeProgram: material.degreeProgram || "",
-                language: material.language || "en"
+                language: material.language || "en",
+                externalLink: material.externalLink || ""
             });
         }
     }, [material]);
@@ -168,6 +170,18 @@ export default function EditMaterialModal({ isOpen, onClose, material, onUpdateS
                                 placeholder="What's included in this material?"
                             />
                         </div>
+                    </div>
+
+                    {/* Google Drive Link (Optional) */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold ml-1">Google Drive Link (Optional)</label>
+                        <input
+                            type="url"
+                            className="w-full px-4 py-2.5 bg-secondary/30 border rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all"
+                            value={formData.externalLink}
+                            onChange={(e) => setFormData({ ...formData, externalLink: e.target.value })}
+                            placeholder="https://drive.google.com/..."
+                        />
                     </div>
 
                     <div className="pt-4 flex gap-4">

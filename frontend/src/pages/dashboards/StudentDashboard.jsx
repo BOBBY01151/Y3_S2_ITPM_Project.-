@@ -1,9 +1,19 @@
 import React from 'react';
-import { Calendar, Star, Clock, MapPin } from 'lucide-react';
+import { Calendar, Star, Clock, MapPin, QrCode } from 'lucide-react';
+import { Button } from '../../components/ui/button';
+import AttendanceScanner from '../../components/AttendanceScanner';
 import { Card } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
+import StorageUsageCard from '../../components/StorageUsageCard';
 
 const StudentDashboard = () => {
+    const [isScannerOpen, setIsScannerOpen] = React.useState(false);
+
+    const handleScan = (code) => {
+        console.log('Scanned:', code);
+        // TODO: Send to backend
+    };
+
     const stats = [
         { label: 'Registered Events', value: '12', icon: Calendar, color: 'text-blue-500' },
         { label: 'Participation Rate', value: '85%', icon: Star, color: 'text-yellow-500' },
@@ -16,10 +26,16 @@ const StudentDashboard = () => {
     ];
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            <div>
-                <h1 className="text-3xl font-bold text-foreground">Student Dashboard</h1>
-                <p className="text-muted-foreground mt-1">Discover and manage your campus activities.</p>
+        <div className="max-w-7xl mx-auto p-6 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-foreground">Student Dashboard</h1>
+                    <p className="text-muted-foreground mt-1">Discover and manage your campus activities.</p>
+                </div>
+                <Button onClick={() => setIsScannerOpen(true)} className="gap-2">
+                    <QrCode className="w-4 h-4" />
+                    Scan Attendance
+                </Button>
             </div>
 
             {/* Stats Grid */}
@@ -64,23 +80,22 @@ const StudentDashboard = () => {
                     </div>
                 </div>
 
-                <div className="space-y-4">
-                    <h2 className="text-xl font-bold flex items-center gap-2">
-                        <Star className="w-5 h-5 text-primary" />
-                        Discover New Events
-                    </h2>
-                    <Card className="p-12 border-dashed border-2 flex flex-col items-center justify-center text-center space-y-4">
-                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                            <Calendar className="w-8 h-8 text-muted-foreground" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold">Explore Campus</h3>
-                            <p className="text-sm text-muted-foreground max-w-[200px]">Check the events page to find more activities matching your interests.</p>
-                        </div>
-                        <button className="text-primary font-bold text-sm hover:underline">Browse Events →</button>
-                    </Card>
-                </div>
             </div>
+
+            {/* Storage Usage Card */}
+            <div className="space-y-4">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                    <Star className="w-5 h-5 text-primary" />
+                    Storage Usage
+                </h2>
+                <StorageUsageCard />
+            </div>
+            {/* Scanner Modal */}
+            <AttendanceScanner
+                isOpen={isScannerOpen}
+                onClose={() => setIsScannerOpen(false)}
+                onScan={handleScan}
+            />
         </div>
     );
 };

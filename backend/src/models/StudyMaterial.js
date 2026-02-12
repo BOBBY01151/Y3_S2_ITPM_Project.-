@@ -8,7 +8,15 @@ const studyMaterialSchema = new mongoose.Schema({
     description: String,
     fileUrl: {
         type: String,
-        required: true,
+        required: false, // Optional because user can provide externalLink instead
+    },
+    externalLink: {
+        type: String,
+        required: false, // Optional Google Drive or other external link
+    },
+    fileSize: {
+        type: Number, // Size in bytes
+        default: 0,
     },
     uploader: {
         type: mongoose.Schema.Types.ObjectId,

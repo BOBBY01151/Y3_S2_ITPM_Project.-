@@ -6,8 +6,12 @@ const languageMiddleware = require('./middleware/language');
 
 const app = express();
 
+
 // Connect Database
 connectDB();
+
+
+
 
 // Init Middleware
 app.use(cors({
@@ -43,6 +47,7 @@ app.use('/api/councils', require('./routes/councils'));
 app.use('/api/communities', require('./routes/communities'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/profile', require('./routes/profile'));
+app.use('/api/storage', require('./routes/storage'));
 
 app.get('/', (req, res) => {
     res.send(req.t('welcome'));

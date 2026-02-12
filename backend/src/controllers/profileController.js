@@ -90,7 +90,8 @@ exports.createOrUpdateProfile = async (req, res) => {
             await User.findByIdAndUpdate(req.user.id, {
                 $set: {
                     campus: profile.campus,
-                    department: profile.faculty
+                    department: profile.faculty,
+                    profilePhoto: profile.profilePhoto
                 }
             });
 
@@ -110,7 +111,8 @@ exports.createOrUpdateProfile = async (req, res) => {
         await User.findByIdAndUpdate(req.user.id, {
             $set: {
                 campus: profile.campus,
-                department: profile.faculty
+                department: profile.faculty,
+                profilePhoto: profile.profilePhoto
             }
         });
 
